@@ -13,10 +13,23 @@ const handleGenerateUrl = async (req, res) => {
     visitHistory: [],
     //createdBy: req.user._id,
   });
-  console.log(URL.shortId);
+  //console.log(URL.shortId);
+
+  return res.render("Home", {
+    id: shortID,
+  });
   return res.json({
     id: shortID,
   });
 };
 
-export default handleGenerateUrl;
+async function handleGetAnalytics(req, res) {
+  const shortId = req.params.shortId;
+  const result = await URL.findOne({ shortId: shortId });
+  return res.json({
+    totalClicks: result.visitHistory.length,
+    analytics: result.visitHistory,
+  });
+}
+
+export { handleGenerateUrl, handleGetAnalytics };
