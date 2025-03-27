@@ -4,7 +4,9 @@ import connectToMongoDB from "./connect.js";
 import router from "./routes/urls.js";
 import URL from "./models/url.js";
 import staticRoute from "./routes/staticRouter.js";
+import userRoute from "./routes/user.js";
 
+//express Setup
 const app = express();
 const PORT = 8001;
 
@@ -14,11 +16,14 @@ app.use(express.urlencoded({ extended: false }));
 connectToMongoDB("mongodb://127.0.0.1:27017/short-url").then(() =>
   console.log("db connected")
 );
+
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
+//Routes
+app.use("/user", userRoute);
 app.use("/url", router);
-app.use("/home", staticRoute);
+app.use("/", staticRoute);
 
 app.get("/test", async (req, res) => {
   const allUrls = await URL.find({});
