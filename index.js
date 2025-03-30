@@ -1,10 +1,12 @@
 import express from "express";
 import path from "path";
+import cookieParser from "cookie-parser";
 import connectToMongoDB from "./connect.js";
 import router from "./routes/urls.js";
 import URL from "./models/url.js";
 import staticRoute from "./routes/staticRouter.js";
 import userRoute from "./routes/user.js";
+import { restrictToLoggedinUserOnly, checkAuth } from "./middleware/auth.js";
 
 //express Setup
 const app = express();
@@ -12,6 +14,7 @@ const PORT = 8001;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 connectToMongoDB("mongodb://127.0.0.1:27017/short-url").then(() =>
   console.log("db connected")
@@ -22,8 +25,8 @@ app.set("views", path.resolve("./views"));
 
 //Routes
 app.use("/user", userRoute);
-app.use("/url", router);
-app.use("/", staticRoute);
+app.use("/url", restrictToLoggedinUserOnly, router);
+app.use("/", checkAuth, staticRoute);
 
 app.get("/test", async (req, res) => {
   const allUrls = await URL.find({});
